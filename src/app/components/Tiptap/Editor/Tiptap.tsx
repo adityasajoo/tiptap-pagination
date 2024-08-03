@@ -8,9 +8,10 @@ import SectionComponent from '../Section/SectionExtension';
 import "./Tiptap.css";
 import { CharacterCount } from '../Extensions/Pagination/Counter';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Pagination } from '../Extensions/Pagination/Pagination';
 
 const CustomDocument = Document.extend({
-  content: 'sectionNode+',
+  content: 'page+',
 })
 
 const Tiptap = () => {
@@ -21,6 +22,7 @@ const Tiptap = () => {
       StarterKit.configure({
         document: false,
       }),
+      Pagination
       // CharacterCount.configure({
       //   limit: 20,
       // }),
@@ -30,9 +32,13 @@ const Tiptap = () => {
 
 
   return (
-    <>
+    <div style={{
+      display:'flex',
+      justifyContent:'center',
+      alignContent:'center'
+    }}>
     <EditorContent editor={editor} />
-    </>
+    </div>
   )
 }
 

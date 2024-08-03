@@ -1,11 +1,22 @@
+.section-node{
+    margin: 30px;
+    width:210mm;
+    min-height: 300px;
+    max-height: 300px;
+    margin-bottom: 40px;
+    
+    
+
+}
 .content{
     border: 1px solid black;
     padding: 10px;
     border-radius: 5px;
     /* height:297mm; */
     /* height:197mm; */
-    /* width:210mm; */
-    min-height: 100px;
+    width:210mm;
+    min-height: 300px;
+    max-height: 300px;
 
 }
 

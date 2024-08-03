@@ -4,6 +4,7 @@
     padding: 10px;
     background-color: rgb(246, 246, 246);
     color: black;
+    width:235mm;
     :first-child {
       margin-top: 0;
     }

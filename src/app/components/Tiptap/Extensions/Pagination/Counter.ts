@@ -82,7 +82,6 @@ export const CharacterCount = Extension.create<CharacterCountOptions, CharacterC
     addProseMirrorPlugins() {
         return [
             new Plugin({
-                key: new PluginKey('characterCount'),
                 filterTransaction: (transaction, state) => {
                     const limit = this.options.limit
 

@@ -9,12 +9,8 @@ const SectionComponent = (props: NodeViewProps) => {
       .chain()
       .focus(endPos)
       .insertContent({
-        type: 'sectionNode',
+        type: 'page',
         content: [
-          {
-            type: 'heading',
-            
-          },
           {
             type: 'paragraph',
           },
@@ -24,7 +20,7 @@ const SectionComponent = (props: NodeViewProps) => {
   };
 
   return (
-    <NodeViewWrapper className='section-node'>
+    <NodeViewWrapper className='section-node' id={props.node.attrs.id} >
       <NodeViewContent className='content' >
       </NodeViewContent>
 
@@ -33,7 +29,25 @@ const SectionComponent = (props: NodeViewProps) => {
         Heading
       </h1>
     </NodeViewContent> */}
-        <button className='add-btn' onClick={addSection}>Add Section</button>
+        {/* <button className='add-btn' onClick={addSection}>Add Section</button> */}
+        <div style={{
+          display:'flex',
+          width:'100%',
+          justifyContent:'end',
+          alignItems:'center',
+          margin:'5px',
+ 
+  
+        }}>
+
+          <div style={{        
+            padding:'5px 20px',
+            background:'gray',
+            borderRadius:'10px',
+            color:'white'}}>
+          <p>{props.node.attrs.pageNumber}</p>
+          </div>
+        </div>
   </NodeViewWrapper>
   )
 }
