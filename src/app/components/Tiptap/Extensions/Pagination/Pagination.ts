@@ -39,23 +39,18 @@ type PluginState = {
     pasting: boolean
     deleting: boolean
     pagesMeta: Array<AttributeSpec>
+    scrollHeight:number
 }
 
 export const key = new PluginKey<PluginState>('pagination')
 
 export const Pagination = Extension.create<PaginationOptions>({
     name: 'pagination',
-
     addOptions() {
         return {
             limit: null,
         }
     },
-
-    // onBeforeCreate(){
-
-    // }
-
     addProseMirrorPlugins() {
         return [
             new Plugin({
@@ -70,6 +65,7 @@ export const Pagination = Extension.create<PaginationOptions>({
                         pasting: false,
                         deleting: false,
                         pagesMeta: [],
+                        scrollHeight:0
                     }),
                     apply: (tr, prev): PluginState => {
                         const bodyDimenssion: { bodyHeight: number; bodyWidth: number } = tr.getMeta('splitPage')
@@ -85,9 +81,9 @@ export const Pagination = Extension.create<PaginationOptions>({
                         const deleting: boolean = tr.getMeta('deleting')
 
                         const pagesMeta: Array<AttributeSpec> = tr.getMeta('pagesMeta')
-
+                        const scrollHeight = tr.getMeta('scrollHeight')
                         let next: PluginState = { ...prev }
-
+                        if (scrollHeight) next.scrollHeight = scrollHeight
                         if (bodyDimenssion) {
                             next.bodyHeight = bodyDimenssion.bodyHeight
                             next.bodyWidth = bodyDimenssion.bodyWidth
@@ -136,8 +132,6 @@ export const Pagination = Extension.create<PaginationOptions>({
                                     pagesMeta.push(node.attrs)
                                 })
 
-                                // if (deleting) tr.setMeta('deleting', true)
-
                                 view.dispatch(
                                     tr
                                         .setMeta('splitPage', { bodyHeight: pageBody.clientHeight, bodyWidth: pageBody.clientWidth })
@@ -152,58 +146,27 @@ export const Pagination = Extension.create<PaginationOptions>({
                     };
                 },
                 appendTransaction([newTr], _prevState, state) {
-                    let { schema, tr } = state
+                    let { schema, tr,selection,doc } = state
 
                     const { bodyHeight, pasting, deleting, pagesMeta } = this.getState(state)
 
                     const splitCommand = newTr.getMeta('splitCommand')
 
-                    // const isPointer = newTr.getMeta('pointer')
-
                     let prevSelectionPos: number | null
 
                     if (!bodyHeight || splitCommand) return
 
-                    // if (
-                    //     state.selection.$head.node(1) === state.doc.lastChild &&
-                    //     state.selection.$head.node(2).lastChild === state.selection.$head.node(3)
-
-                    //     // state.selection.$head.node(3).type !== schema.nodes[TABLE]
-                    // ) {
-                    //
-                    // If carret is on the last element of the page directlty split page skil else
-                    //
-
                     const nextPageModel = state.schema.nodes["page"].create(pagesMeta[tr.doc.childCount])
-
+                    if(selection.$head.node(1)==doc.firstChild&&tr.doc.childCount>1){
+                        return splitDocument(tr,state);
+                    }
                     if (tr.selection.$head.parentOffset === 0) {
                         tr = tr.step(new ReplaceStep(tr.selection.head - 2, tr.selection.head, Slice.empty))
                         return splitPage(tr, tr.selection.head, tr.selection.$head.depth, [nextPageModel], schema)
                     }
                     return splitPage(tr, tr.selection.head - 1, tr.selection.$head.depth, [nextPageModel], schema).scrollIntoView()
-                    // }
-
-                    prevSelectionPos = state.selection.head
-
-                    // tr = removeHeadersAndFooters(tr, schema)
-
-                    // tr = joinDocument(tr)
-
-                    // tr = addHeadersAndFooters(tr, schema)
-
-                    tr = splitDocument(tr, state)
-
-                    console.log("TR : ", tr)
-
-                    // tr = skipFooterHeaderInSelection(tr, schema, prevSelectionPos, deleting)
-
-                    return tr.scrollIntoView()
                 },
-                // filterTransaction: (tr, state) => {
-                //     const limit = this.options;
-                //     console.log("From pagination :", tr);
-                //     return true;
-                // },
+
             })
         ]
     },
@@ -231,16 +194,6 @@ const splitDocument = (tr: Transaction, state: EditorState): Transaction => {
     let newTr = splitPage(tr, splitInfo.pos - 1, splitInfo.depth, [nextPageModel], state.schema)
 
     if (splitInfo.depth !== 6) newTr = removePararaphAtStart(newTr, schema)
-
-    // if (splitInfo.depth === 3 && splitInfo.cellStart !== null) {
-    //     newTr = joinTables(newTr, splitInfo, schema, state)
-    // }
-
-    // if (splitInfo.depth === 6) {
-    //     newTr = removeLastRowFromSplit(tr, schema, splitInfo)
-    //     newTr = joinTables(newTr, splitInfo, schema, state)
-    // }
-
     if (getNodeHeight(newTr.doc, state)) {
         return splitDocument(newTr, state)
     }
